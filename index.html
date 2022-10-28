@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>퀴즈퀴즈~!</title>
+</head>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<style>
+html, body{margin: 0px; height: 100%;width: 100%;}
+.container {
+  background: black;
+  display: inline-block;
+  border: 5px solid black;
+ 
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 250px);
+  grid-template-rows: repeat(3, 250px);
+  grid-gap: 5px;
+}
+.cell {
+   /* center the cell content */
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  font-family: Arial;
+  font-size: 3rem;
+  font-weight: bold;
+  background: white;
+}
+
+.page-wrapper {
+  width: 100%;
+  height: 100%;
+  background: url(https://goo.gl/OeVhun) center no-repeat;
+  background-size: cover;
+}
+
+.blur-it {
+  filter: blur(4px);
+}
+
+a.btn {
+  width: 200px;
+  padding: 18px 0;
+  position: absolute;
+  top: 90%; 
+  left: 85%;
+  transform: translate(-50%, -50%);
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #fff;
+  border-radius: 0;
+  background: #e2525c;
+}
+a.btn2 {
+  width: 200px;
+  padding: 18px 0;
+  position: absolute;
+  top: 90%; 
+  left: 60%;
+  transform: translate(-50%, -50%);
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #fff;
+  border-radius: 0;
+  background: #52a5e2;
+}
+a.btn3 {
+  width: 200px;
+  padding: 18px 0;
+  position: absolute;
+  top: 90%; 
+  left: 35%;
+  transform: translate(-50%, -50%);
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #fff;
+  border-radius: 0;
+  background: #606161;
+}
+.modal-wrapper {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0; 
+  left: 0;
+  background: rgba(41, 171, 164, 0.8);
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.25s ease-in-out;
+}
+
+.modal-wrapper.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.game-modal-wrapper {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0; 
+  left: 0;
+  background: rgba(41, 171, 164, 0.8);
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.25s ease-in-out;
+}
+.human-game-modal-wrapper {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0; 
+  left: 0;
+  background: rgba(41, 171, 164, 0.8);
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.25s ease-in-out;
+}
+
+.big-game-modal-wrapper {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0; 
+  left: 0;
+  background: rgba(41, 171, 164, 0.8);
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.25s ease-in-out;
+}
+
+.game-modal-wrapper.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.big-game-modal-wrapper.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.human-game-modal-wrapper.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  width: 1000px;
+  height: 700px;
+  display: block;
+  margin: 50% 0 0 -240px;
+  position: relative;
+  top: 30%; 
+  left: 35%;
+  background: #fff;
+  opacity: 0;
+  transition: all 0.5s ease-in-out;
+}
+
+.modal-wrapper.open .modal {
+  margin-top: -200px;
+  opacity: 1;
+}
+
+.game-modal-wrapper.open .modal {
+  margin-top: -200px;
+  opacity: 1;
+}
+
+.big-game-modal-wrapper.open .modal {
+  margin-top: -200px;
+  opacity: 1;
+}
+
+.human-game-modal-wrapper.open .modal {
+  margin-top: -200px;
+  opacity: 1;
+}
+.head { 
+  height: 32px;
+  padding: 12px 30px;
+  overflow: hidden;
+  background: #e2525c;
+}
+
+.btn-close {
+  font-size: 28px;
+  display: block;
+  float: right;
+  color: #fff;
+}
+
+.content {
+  padding: 10%;
+}
+
+.good-job {
+  text-align: center;
+  font-family: 'Montserrat', Arial,       Helvetica, sans-serif;
+  color: #e2525c;
+}
+.good-job .fa-thumbs-o-up {
+  font-size: 60px;
+}
+.good-job h1 {
+  font-size: 45px;
+}
+
+</style>
+<script>
+    var flag = "";
+    var imgcnt = 0;
+   $(document).ready(function() { 
+
+    $('.cell').click(function(){
+        $('.modal-wrapper').toggleClass('open');
+        $('.page-wrapper').toggleClass('blur-it');
+        makeQuestion(this);
+         return false;
+    });
+
+    $('.close').click(function(){
+        $('.modal-wrapper').removeClass('open');
+        $('.game-modal-wrapper').removeClass('open');
+        $('.human-game-modal-wrapper').removeClass('open');
+        $('.big-game-modal-wrapper').removeClass('open');
+        $('.page-wrapper').toggleClass('blur-it');
+         return false;
+    });
+
+    $('.next').click(function(){
+         $('.modal-wrapper').toggleClass('open');
+        $('.game-modal-wrapper').toggleClass('open');
+        $('.page-wrapper').toggleClass('blur-it');
+         return false;
+    });
+
+   })
+   function makeQuestion(t){
+    flag = $(t).attr("id");
+    
+    var hint = "";
+    var title = "";
+    var cnt = 1;
+    var game ="";
+    switch(flag) {
+        case 'people':  
+            hint = "팀";
+            cnt  = '모두가'
+            game = "일심동체 퀴즈!"
+            break
+        case 'eye':  
+            hint = "눈";
+            cnt = '모두가'
+            game = "사진퀴즈 - 무슨 사진일까요?"
+            break
+        case 'think':  
+            hint = "생각";
+            cnt = '모두가'
+            game = "인물퀴즈 - 사진을 보고 3초 안에 이름을 말해주세요"
+            break
+        case 'leftear': 
+            hint = "귀";
+            cnt = '모두가'
+            game = "소리를 듣고 영화 제목을 맞춰주세요"
+           break   
+        case 'nose':  
+            hint = "코";
+            cnt = '대표 1명이'
+            game = "소리를 듣고 영화 제목을 맞춰주세요"
+           break
+        case 'rightear':  
+            hint = "귀";
+            cnt = '대표 2명이'
+            game = "소리없는 아우성"
+           break
+        case 'hand':  
+            hint = "손";
+            cnt = '대표 1명이'
+            game = "물병 던져서 세우기"  
+           break
+        case 'mouse':  
+            hint = "입";  
+            cnt = '대표 1명이' 
+            game = "술 종류 맞추기"  
+           break
+        case 'jejus':  
+            hint = "성당";  
+            cnt = '대표 1명이'
+            game = "주님의 기도 외우면서 성모송 쓰기"  
+           break
+        default:
+          
+            break
+        }
+    title = cnt + " 하는 게임입니다."
+    $("#title").html(title)
+    $("#hint").html(hint)
+    $("#gameName").html(game)
+    $(t).html('<img src="./images/heart.png">')
+   }
+
+
+   function startGame(){
+    $('.modal-wrapper').removeClass('open');
+      $('.game-modal-wrapper').removeClass('open');
+   
+    switch(flag) {
+        case 'people':  
+            hint = "팀";
+            cnt  = '모두가'
+            game = "일심동체 퀴즈!"
+            break
+        case 'eye':  
+        imgcnt = 1;
+        $('.big-game-modal-wrapper').addClass('open');
+            break
+        case 'think':  
+        $('.human-game-modal-wrapper').addClass('open');
+            imgcnt = 1;
+            break
+        case 'leftear': 
+            hint = "귀";
+            cnt = '모두가'
+            game = "소리를 듣고 영화 제목을 맞춰주세요"
+           break   
+        case 'nose':  
+            hint = "코";
+            cnt = '대표 1명이' 
+            game = "술 종류 맞추기"
+           break
+        case 'rightear':  
+            hint = "귀";
+            cnt = '대표 2명이'
+            game = "소리없는 아우성"
+           break
+        case 'hand':  
+            hint = "손";
+            cnt = '대표 1명이'
+            game = "주님의 기도 외우면서 성모송 쓰기"  
+           break
+        case 'mouse':  
+            hint = "입";  
+            cnt = '대표 1명이' 
+            game = "술 종류 맞추기"  
+           break
+        case 'jejus':  
+            hint = "???";  
+            cnt = '대표 1명이'
+            game = ""  
+           break
+        default:
+          
+            break
+        }
+   }
+   function nextImage(i){
+    imgcnt = imgcnt + i;
+    $("#quizImg").attr("src","./images/humanQuiz/그림"+imgcnt+".jpg")
+
+   }
+   function nextImagebig(i){
+    imgcnt = imgcnt + i;
+    if(imgcnt == 14){
+      imgcnt = 15
+    }
+    $("#quizImg2").attr("src","./images/bigImgQuiz/그림"+imgcnt+".jpg")
+
+   }
+   
+</script>
+
+
+<body background="./images/bgImage.JPG">
+    <div style="height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;"
+>
+    <div class="container">
+        <div class="grid">
+          <div class="cell" id="people">
+            <img src="./images/people.png">
+          </div>
+          <div class="cell" id="eye">
+            <img src="./images/eye.png">
+          </div>
+          <div class="cell" id="think">
+            <img src="./images/think.png">
+          </div>
+          <div class="cell" id="leftear">
+            <img src="./images/leftear.png">
+          </div>
+          <div class="cell" id="nose">
+            <img src="./images/nose.png">
+          </div>
+          <div class="cell" id="rightear">
+            <img src="./images/rightear.png">
+          </div>
+          <div class="cell" id="hand">
+            <img src="./images/hand.png">
+          </div>
+          <div class="cell" id="mouse">
+            <img src="./images/mouse.png">
+          </div>
+          <div class="cell" id="jejus"> 
+            <img src="./images/jejus.png">
+        </div>
+        </div>
+      </div>
+    </div>
+
+
+<!-- Modal -->
+<div class="modal-wrapper">
+    <div class="modal">
+      <div class="head">
+        <a class="btn-close trigger" href="#">
+          <i class="fa fa-times" aria-hidden="true"></i>
+        </a>
+      </div>
+      <div class="content" style="display:flex">
+          <div class="good-job" style="width: 100%">
+            <h1 id="title">대표를 정해주세요!</h1>
+            <h2>힌트: <span id="hint">귀</span></h2>
+          </div>
+          <div>
+            <a class="next btn2 trigger" href="#">next</a>
+            <a class="close btn trigger" href="#">close</a>
+        </div>
+      </div>
+    </div>
+</div>
+
+<div class="game-modal-wrapper">
+    <div class="modal">
+      <div class="head">
+        <a class="btn-close trigger" href="#">
+          <i class="fa fa-times" aria-hidden="true"></i>
+        </a>
+      </div>
+      <div class="content" style="display:flex">
+          <div class="good-job" style="width: 100%;">
+            <h1 id="gameName"></h1>
+          </div>
+          <div>
+            <a class="btn2 trigger" href="javascript:startGame()">startGame</a>
+            <a class="close btn trigger" href="#">close</a>
+        </div>
+      </div>
+    </div>
+</div>
+
+<div class="human-game-modal-wrapper">
+  <div class="modal">
+    <div class="head">
+      <a class="btn-close trigger" href="#">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </a>
+    </div>
+    <div class="content" style="display:flex;padding: 0px;">
+        <div class="good-job" style="width: 100%;">
+        <img id="quizImg" src="./images/humanQuiz/그림1.jpg" style="min-width: 500px;max-width:650px;max-height: 530px;min-height: 500px;">
+        </div>
+        <div>
+          <a class="btn3 trigger" href="javascript:nextImage(-1)">before Image</a>
+          <a class="btn2 trigger" href="javascript:nextImage(1)">next Image</a>
+          <a class="close btn trigger" href="#">close</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="big-game-modal-wrapper">
+  <div class="modal">
+    <div class="head">
+      <a class="btn-close trigger" href="#">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </a>
+    </div>
+    <div class="content" style="display:flex;padding: 0px;">
+        <div class="good-job" style="width: 100%;">
+        <img id="quizImg2" src="./images/bigImgQuiz/그림1.jpg" style="min-width: 500px;max-width:650px;max-height: 530px;min-height: 500px;">
+        </div>
+        <div>
+          <a class="btn3 trigger" href="javascript:nextImagebig(-1)">before Image</a>
+          <a class="btn2 trigger" href="javascript:nextImagebig(1)">next Image</a>
+          <a class="close btn trigger" href="#">close</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
